@@ -1,0 +1,2 @@
+class FinsException(Exception):
+    pass
