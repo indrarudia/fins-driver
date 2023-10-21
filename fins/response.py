@@ -12,4 +12,13 @@ class Response:
 
     @property
     def data(self) -> bytes:
-        return self.header + self.command_code + self.response_code + self.text
+        return self.header.data + self.command_code + self.response_code + self.text
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "Response":
+        return cls(
+            header=Header.from_bytes(data[:10]),
+            command_code=data[10:12],
+            response_code=data[12:14],
+            text=data[14:],
+        )

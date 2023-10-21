@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .header import Header, default_request_header
+from .header import Header, default_header
 
 MEMORY_AREA_READ = b"\x01\x01"
 MEMORY_AREA_WRITE = b"\x01\x02"
@@ -54,7 +54,7 @@ class Command:
         self, code: bytes, text: bytes, header: Optional[Header] = None
     ) -> None:
         if header is None:
-            self.header = default_request_header()
+            self.header = default_header()
         else:
             self.header = header
         self.code = code
@@ -62,4 +62,4 @@ class Command:
 
     @property
     def data(self) -> bytes:
-        return self.header + self.code + self.text
+        return self.header.data + self.code + self.text

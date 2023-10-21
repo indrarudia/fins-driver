@@ -1,6 +1,3 @@
-from typing import Union
-
-
 class Header:
     def __init__(
         self,
@@ -41,20 +38,27 @@ class Header:
             + self.sid
         )
 
-    def __add__(self, other: Union["Header", bytes]) -> bytes:
-        if isinstance(other, Header):
-            return self.data + other.data
-        elif isinstance(other, bytes):
-            return self.data + other
-        else:
-            raise TypeError(f"Unsupported type: {type(other)}")
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "Header":
+        return cls(
+            icf=data[0:1],
+            rsv=data[1:2],
+            gct=data[2:3],
+            dna=data[3:4],
+            da1=data[4:5],
+            da2=data[5:6],
+            sna=data[6:7],
+            sa1=data[7:8],
+            sa2=data[8:9],
+            sid=data[9:10],
+        )
 
 
-def default_request_header() -> Header:
+def default_header() -> Header:
     return Header(
         icf=b"\x80",
         rsv=b"\x00",
-        gct=b"\x02",
+        gct=b"\x07",
         dna=b"\x00",
         da1=b"\x00",
         da2=b"\x00",

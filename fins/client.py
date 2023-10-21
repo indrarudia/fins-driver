@@ -1,7 +1,6 @@
 import socket
 
 from .command import Command
-from .exceptions import FinsException
 from .response import Response
 
 
@@ -13,15 +12,12 @@ class Client:
         self.port = port
         self.timeout = timeout
         self.buffer_size = 4096
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def send(self, command: Command) -> Response:
         self._socket.send(command.data)
-        try:
-            data = self._socket.recv(self.buffer_size)
-        except FinsException:
-            pass
-        return data
+        data = self._socket.recv(self.buffer_size)
+        return Response.from_bytes(data)
 
     def connect(self) -> None:
         self._socket.connect((self.host, self.port))
