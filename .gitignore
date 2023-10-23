@@ -161,3 +161,4 @@ cython_debug/
 
 TODO
 run.py
+.DS_Store
