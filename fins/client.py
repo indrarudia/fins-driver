@@ -1,7 +1,8 @@
 import socket
 from typing import Literal
 
-from .command import MEMORY_AREA_READ, MEMORY_AREA_WRITE, Command
+from . import command
+from .command import Command
 from .header import Header
 from .memory import MemoryAddress
 from .response import Response
@@ -65,20 +66,20 @@ class FinsClient:
 
     def memory_area_read(self, address: str, num_items: int = 1) -> Response:
         addr = MemoryAddress(address)
-        command = Command(
-            code=MEMORY_AREA_READ,
+        cmd = Command(
+            code=command.MEMORY_AREA_READ,
             data=addr.bytes + num_items.to_bytes(2, "big"),
             header=self._build_header(),
         )
-        return self.send(command)
+        return self.send(cmd)
 
     def memory_area_write(
         self, address: str, data: bytes, num_items: int = 1
     ) -> Response:
         addr = MemoryAddress(address)
-        command = Command(
-            code=MEMORY_AREA_WRITE,
+        cmd = Command(
+            code=command.MEMORY_AREA_WRITE,
             data=addr.bytes + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )
-        return self.send(command)
+        return self.send(cmd)
