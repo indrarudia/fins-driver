@@ -1,11 +1,13 @@
 import socket
 from typing import Literal
 
-from .command import Command
+from .command import MEMORY_AREA_READ, MEMORY_AREA_WRITE, Command
+from .header import Header
+from .memory import MemoryAddress
 from .response import Response
 
 
-class Client:
+class FinsClient:
     def __init__(
         self,
         host: str = "127.0.0.1",
@@ -24,8 +26,16 @@ class Client:
         else:
             raise ValueError(f"Unknown client mode: {mode}")
 
-    def send(self, command: Command) -> Response:
-        self._socket.send(command.data)
+        self.dna: int = 0
+        self.da1: int = 0
+        self.da2: int = 0
+        self.sna: int = 0
+        self.sa1: int = 1
+        self.sa2: int = 0
+        self.sid: int = 0
+
+    def send(self, command: Command) -> bytes:
+        self._socket.send(command.bytes)
         data = self._socket.recv(self.buffer_size)
         return Response.from_bytes(data)
 
@@ -38,3 +48,36 @@ class Client:
 
     def __del__(self) -> None:
         self._socket.close()
+
+    def _build_request_header(self) -> Header:
+        return Header(
+            icf=b"\x80",
+            rsv=b"\x00",
+            gct=b"\x07",
+            dna=self.dna.to_bytes(1, "big"),
+            da1=self.da1.to_bytes(1, "big"),
+            da2=self.da2.to_bytes(1, "big"),
+            sna=self.sna.to_bytes(1, "big"),
+            sa1=self.sa1.to_bytes(1, "big"),
+            sa2=self.sa2.to_bytes(1, "big"),
+            sid=self.sid.to_bytes(1, "big"),
+        )
+
+    def memory_area_read(self, address: str, num_items: int = 1) -> Response:
+        addr = MemoryAddress(address)
+        command = Command(
+            code=MEMORY_AREA_READ,
+            data=addr.bytes + num_items.to_bytes(2, "big"),
+            header=self._build_request_header(),
+        )
+        return self.send(command)
+
+    def memory_area_write(
+        self, address: str, data: bytes, num_items: int = 1
+    ) -> Response:
+        addr = MemoryAddress(address)
+        command = Command(
+            code=MEMORY_AREA_WRITE,
+            data=addr.bytes + num_items.to_bytes(2, "big") + data,
+        )
+        return self.send(command)

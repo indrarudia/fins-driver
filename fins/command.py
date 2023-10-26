@@ -51,15 +51,15 @@ CONVERT_TO_MODBUS_ASCII_COMMAND = b"\x28\x05"
 
 class Command:
     def __init__(
-        self, code: bytes, text: bytes, header: Optional[Header] = None
+        self, code: bytes, data: bytes = b"", header: Optional[Header] = None
     ) -> None:
         if header is None:
             self.header = default_header()
         else:
             self.header = header
         self.code = code
-        self.text = text
+        self.data = data
 
     @property
-    def data(self) -> bytes:
-        return self.header.data + self.code + self.text
+    def bytes(self) -> bytes:
+        return self.header.data + self.code + self.data
