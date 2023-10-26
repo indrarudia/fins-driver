@@ -49,7 +49,7 @@ class FinsClient:
     def __del__(self) -> None:
         self._socket.close()
 
-    def _build_request_header(self) -> Header:
+    def _build_header(self) -> Header:
         return Header(
             icf=b"\x80",
             rsv=b"\x00",
@@ -68,7 +68,7 @@ class FinsClient:
         command = Command(
             code=MEMORY_AREA_READ,
             data=addr.bytes + num_items.to_bytes(2, "big"),
-            header=self._build_request_header(),
+            header=self._build_header(),
         )
         return self.send(command)
 
@@ -79,5 +79,6 @@ class FinsClient:
         command = Command(
             code=MEMORY_AREA_WRITE,
             data=addr.bytes + num_items.to_bytes(2, "big") + data,
+            header=self._build_header(),
         )
         return self.send(command)
