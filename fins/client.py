@@ -83,3 +83,14 @@ class FinsClient:
             header=self._build_header(),
         )
         return self.send(cmd)
+
+    def memory_area_fill(
+        self, address: str, data: bytes, num_items: int = 1
+    ) -> Response:
+        addr = MemoryAddress(address)
+        cmd = Command(
+            code=command.MEMORY_AREA_FILL,
+            data=addr.bytes + num_items.to_bytes(2, "big") + data,
+            header=self._build_header(),
+        )
+        return self.send(cmd)
