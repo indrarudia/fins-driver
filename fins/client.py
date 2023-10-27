@@ -1,5 +1,5 @@
 import socket
-from typing import Literal
+from typing import Literal, Union
 
 from . import command
 from .command import Command
@@ -64,7 +64,9 @@ class FinsClient:
             sid=self.sid.to_bytes(1, "big"),
         )
 
-    def memory_area_read(self, address: str, num_items: int = 1) -> Response:
+    def memory_area_read(
+        self, address: Union[str, bytes], num_items: int = 1
+    ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
             code=command.MEMORY_AREA_READ,
@@ -74,7 +76,7 @@ class FinsClient:
         return self.send(cmd)
 
     def memory_area_write(
-        self, address: str, data: bytes, num_items: int = 1
+        self, address: Union[str, bytes], data: bytes, num_items: int = 1
     ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
@@ -85,7 +87,7 @@ class FinsClient:
         return self.send(cmd)
 
     def memory_area_fill(
-        self, address: str, data: bytes, num_items: int = 1
+        self, address: Union[str, bytes], data: bytes, num_items: int = 1
     ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
