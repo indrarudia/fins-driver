@@ -62,4 +62,7 @@ class Command:
 
     @property
     def bytes(self) -> bytes:
-        return self.header.data + self.code + self.data
+        return self.header.bytes + self.code + self.data
+
+    def to_bytes(self) -> bytes:
+        return self.bytes

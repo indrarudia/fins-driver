@@ -16,7 +16,10 @@ class Response:
 
     @property
     def bytes(self) -> bytes:
-        return self.header.data + self.command_code + self.code + self.data
+        return self.header.bytes + self.command_code + self.code + self.data
+
+    def to_bytes(self) -> bytes:
+        return self.bytes
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "Response":

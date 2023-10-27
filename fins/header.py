@@ -24,7 +24,7 @@ class Header:
         self.sid = sid
 
     @property
-    def data(self) -> bytes:
+    def bytes(self) -> bytes:
         return (
             self.icf
             + self.rsv
@@ -37,6 +37,9 @@ class Header:
             + self.sa2
             + self.sid
         )
+
+    def to_bytes(self) -> bytes:
+        return self.bytes
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "Header":
