@@ -1,8 +1,7 @@
 import socket
 from typing import Literal, Union
 
-from . import command
-from .command import Command
+from .command import MEMORY_AREA_FILL, MEMORY_AREA_READ, MEMORY_AREA_WRITE, Command
 from .header import Header
 from .memory import MemoryAddress
 from .response import Response
@@ -38,7 +37,7 @@ class FinsClient:
     def send(self, command: Command) -> bytes:
         self._socket.send(command.bytes)
         data = self._socket.recv(self.buffer_size)
-        return Response.from_bytes(data)
+        return Response.from_bytes(data, command)
 
     def connect(self) -> None:
         self._socket.connect((self.host, self.port))
@@ -69,7 +68,7 @@ class FinsClient:
     ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
-            code=command.MEMORY_AREA_READ,
+            code=MEMORY_AREA_READ,
             data=addr.bytes + num_items.to_bytes(2, "big"),
             header=self._build_header(),
         )
@@ -80,7 +79,7 @@ class FinsClient:
     ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
-            code=command.MEMORY_AREA_WRITE,
+            code=MEMORY_AREA_WRITE,
             data=addr.bytes + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )
@@ -91,7 +90,7 @@ class FinsClient:
     ) -> Response:
         addr = MemoryAddress(address)
         cmd = Command(
-            code=command.MEMORY_AREA_FILL,
+            code=MEMORY_AREA_FILL,
             data=addr.bytes + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )

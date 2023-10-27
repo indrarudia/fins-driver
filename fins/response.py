@@ -1,3 +1,6 @@
+from typing import Optional
+
+from .command import Command
 from .header import Header
 
 
@@ -8,11 +11,13 @@ class Response:
         command_code: bytes,
         code: bytes,
         data: bytes,
+        command: Command,
     ) -> None:
         self.header = header
         self.command_code = command_code
         self.code = code
         self.data = data
+        self.command = command
 
     @property
     def bytes(self) -> bytes:
@@ -22,10 +27,11 @@ class Response:
         return self.bytes
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> "Response":
+    def from_bytes(cls, data: bytes, command: Command) -> "Response":
         return cls(
             header=Header.from_bytes(data[:10]),
             command_code=data[10:12],
             code=data[12:14],
             data=data[14:],
+            command=command,
         )
