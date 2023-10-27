@@ -117,6 +117,9 @@ MEMORY_AREAS = {
     "D": AddressSet(word=DATA_MEMORY_WORD, bit=DATA_MEMORY_BIT),
     "T": AddressSet(word=TIMER_WORD),
     "C": AddressSet(word=COUNTER_WORD),
+    "IR": AddressSet(word=INDEX_REGISTER),
+    "DR": AddressSet(word=DATA_REGISTER),
+    "TK": AddressSet(word=TASK_FLAG_STATUS, bit=TASK_FLAG_BIT),
 }
 
 
