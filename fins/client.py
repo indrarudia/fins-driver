@@ -1,7 +1,9 @@
 import socket
-from typing import List, Literal, Union
+from typing import Literal, Union
 
 from .command import (
+    FORCED_SET_RESET,
+    FORCED_SET_RESET_CANCEL,
     MEMORY_AREA_FILL,
     MEMORY_AREA_READ,
     MEMORY_AREA_TRANSFER,
@@ -10,6 +12,7 @@ from .command import (
     RUN,
     STOP,
     Command,
+    SetResetSpec,
 )
 from .header import Header
 from .memory import MemoryAddress
@@ -105,9 +108,7 @@ class FinsClient:
         )
         return self.send(cmd)
 
-    def multiple_memory_area_read(
-        self, *addresses: List[Union[str, bytes]]
-    ) -> Response:
+    def multiple_memory_area_read(self, *addresses: Union[str, bytes]) -> Response:
         data = []
         for address in addresses:
             addr = MemoryAddress(address)
@@ -151,6 +152,25 @@ class FinsClient:
     def stop(self) -> Response:
         cmd = Command(
             code=STOP,
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def forced_set_reset(self, *specs: SetResetSpec) -> Response:
+        data = []
+        for spec in specs:
+            data.append(spec.to_bytes())
+        num_items = len(data)
+        cmd = Command(
+            code=FORCED_SET_RESET,
+            data=num_items.to_bytes(2, "big") + b"".join(data),
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def forced_set_reset_cancel(self) -> Response:
+        cmd = Command(
+            code=FORCED_SET_RESET_CANCEL,
             header=self._build_header(),
         )
         return self.send(cmd)

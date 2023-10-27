@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Union
 
 from .header import Header, default_header
+from .memory import MemoryAddress
 
 MEMORY_AREA_READ = b"\x01\x01"
 MEMORY_AREA_WRITE = b"\x01\x02"
@@ -66,3 +67,19 @@ class Command:
 
     def to_bytes(self) -> bytes:
         return self.bytes
+
+
+FORCE_RESET = b"\x00\x00"
+FORCE_SET = b"\x00\x01"
+FORCED_RELEASED_BIT_OFF = b"\x80\x00"
+FORCED_RELEASED_BIT_ON = b"\x80\x01"
+FORCED_RELEASED = b"\xff\xff"
+
+
+class SetResetSpec:
+    def __init__(self, spec: bytes, address: Union[str, bytes]) -> None:
+        self.spec = spec
+        self.address = address
+
+    def to_bytes(self) -> bytes:
+        return self.spec + MemoryAddress(self.address).to_bytes()
