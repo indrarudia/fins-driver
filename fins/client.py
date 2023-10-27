@@ -4,6 +4,7 @@ from typing import List, Literal, Union
 from .command import (
     MEMORY_AREA_FILL,
     MEMORY_AREA_READ,
+    MEMORY_AREA_TRANSFER,
     MEMORY_AREA_WRITE,
     MULTIPLE_MEMORY_AREA_READ,
     Command,
@@ -113,6 +114,21 @@ class FinsClient:
         cmd = Command(
             code=MULTIPLE_MEMORY_AREA_READ,
             data=b"".join(data),
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def memory_area_transfer(
+        self,
+        source_address: Union[str, bytes],
+        dest_address: Union[str, bytes],
+        num_items: int = 1,
+    ) -> Response:
+        src_addr = MemoryAddress(source_address)
+        dest_addr = MemoryAddress(dest_address)
+        cmd = Command(
+            code=MEMORY_AREA_TRANSFER,
+            data=src_addr.bytes + dest_addr.bytes + num_items.to_bytes(2, "big"),
             header=self._build_header(),
         )
         return self.send(cmd)
