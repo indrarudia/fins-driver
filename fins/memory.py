@@ -1,5 +1,7 @@
+import binascii
 import re
-from typing import Union
+from dataclasses import dataclass
+from typing import Optional, Union
 
 CIO_BIT = b"\x30"
 WORK_BIT = b"\x31"
@@ -83,27 +85,38 @@ DATA_REGISTER = b"\xBC"
 CLOCK_PULSES = b"\x07"
 CONDITION_FLAGS = b"\x07"
 
+
+@dataclass
+class AddressSet:
+    word: bytes
+    bit: Optional[bytes] = None
+    word_forced: Optional[bytes] = None
+    bit_forced: Optional[bytes] = None
+
+
 MEMORY_AREAS = {
-    "CIO": {
-        "word": CIO_WORD,
-        "bit": CIO_BIT,
-    },
-    "W": {
-        "word": WORK_WORD,
-        "bit": WORK_BIT,
-    },
-    "H": {
-        "word": HOLDING_WORD,
-        "bit": HOLDING_WORD,
-    },
-    "A": {
-        "word": AUXILIARY_WORD,
-        "bit": AUXILIARY_BIT,
-    },
-    "D": {
-        "word": DATA_MEMORY_WORD,
-        "bit": DATA_MEMORY_BIT,
-    },
+    "CIO": AddressSet(
+        word=CIO_WORD,
+        bit=CIO_BIT,
+        word_forced=CIO_WORD_FORCED,
+        bit_forced=CIO_BIT_FORCED,
+    ),
+    "W": AddressSet(
+        word=WORK_WORD,
+        bit=WORK_BIT,
+        word_forced=WORK_WORD_FORCED,
+        bit_forced=WORK_BIT_FORCED,
+    ),
+    "H": AddressSet(
+        word=HOLDING_WORD,
+        bit=HOLDING_BIT,
+        word_forced=HOLDING_WORD_FORCED,
+        bit_forced=HOLDING_BIT_FORCED,
+    ),
+    "A": AddressSet(word=AUXILIARY_WORD, bit=AUXILIARY_BIT),
+    "D": AddressSet(word=DATA_MEMORY_WORD, bit=DATA_MEMORY_BIT),
+    "T": AddressSet(word=TIMER_WORD),
+    "C": AddressSet(word=COUNTER_WORD),
 }
 
 
@@ -122,13 +135,13 @@ class MemoryAddress:
             if bit is None:
                 self.bit = b"\x00"
                 if area in MEMORY_AREAS:
-                    self.area = MEMORY_AREAS[area]["word"]
+                    self.area = MEMORY_AREAS[area].word
                 else:
                     self.area = CIO_WORD
             else:
                 self.bit = int(bit).to_bytes(1, "big")
                 if area in MEMORY_AREAS:
-                    self.area = MEMORY_AREAS[area]["bit"]
+                    self.area = MEMORY_AREAS[area].bit
                 else:
                     self.area = CIO_BIT
 
@@ -138,9 +151,28 @@ class MemoryAddress:
             self.area = value[0:1]
             self.word = value[1:3]
             self.bit = value[3:]
+
         else:
             raise TypeError(f"Unsupported type: {type(value)}")
+
+        self._value = value
 
     @property
     def bytes(self) -> bytes:
         return self.area + self.word + self.bit
+
+    def to_bytes(self) -> bytes:
+        return self.bytes
+
+    def is_bit_set(self) -> bool:
+        return self.bit is not None
+
+    def __str__(self) -> str:
+        if isinstance(self._value, str):
+            value = "{text} ({hex})".format(
+                text=self._value,
+                hex=binascii.hexlify(self.bytes, sep=b" ", bytes_per_sep=1),
+            )
+        else:
+            value = "{}".format(binascii.hexlify(self.bytes, sep=b" ", bytes_per_sep=1))
+        return value
