@@ -1,10 +1,14 @@
-from typing import Optional
-
 from .command import Command
 from .header import Header
+from .response_codes import RESPONSE_CODES
 
 
 class Response:
+    """
+    The :class:`Response <Response>` object, which contains a FINS's response to
+    a request.
+    """
+
     def __init__(
         self,
         header: Header,
@@ -13,25 +17,44 @@ class Response:
         data: bytes,
         command: Command,
     ) -> None:
+        #: Response header.
         self.header = header
+
+        #: Command code, in bytes.
         self.command_code = command_code
+
+        #: Response code, in bytes.
         self.code = code
+
+        #: Response data, in bytes.
         self.data = data
+
+        #: The request command.
         self.command = command
 
     @property
-    def bytes(self) -> bytes:
-        return self.header.bytes + self.command_code + self.code + self.data
+    def raw(self) -> bytes:
+        """Returns the raw content of the response, in bytes."""
+        return self.header.raw + self.command_code + self.code + self.data
 
-    def to_bytes(self) -> bytes:
-        return self.bytes
+    @property
+    def ok(self) -> bool:
+        """
+        Returns True if :attr:`status_code` is 0x0000 (Normal completion).
+        """
+        return self.code == b"\x00\x00"
 
-    @classmethod
-    def from_bytes(cls, data: bytes, command: Command) -> "Response":
-        return cls(
-            header=Header.from_bytes(data[:10]),
-            command_code=data[10:12],
-            code=data[12:14],
-            data=data[14:],
-            command=command,
-        )
+    @property
+    def status_text(self) -> str:
+        """
+        Returns the human readible text of the status code.
+        """
+        if self.code in RESPONSE_CODES:
+            return RESPONSE_CODES[self.code]
+        return "Unknown response code"
+
+    def __repr__(self) -> str:
+        return "<FINS Response: {}>".format(self.code)
+
+    def __str__(self) -> str:
+        return str(self.raw)

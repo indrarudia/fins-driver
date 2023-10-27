@@ -1,21 +1,9 @@
 import socket
 from typing import Literal, Union
 
-from .command import (
-    FORCED_SET_RESET,
-    FORCED_SET_RESET_CANCEL,
-    MEMORY_AREA_FILL,
-    MEMORY_AREA_READ,
-    MEMORY_AREA_TRANSFER,
-    MEMORY_AREA_WRITE,
-    MULTIPLE_MEMORY_AREA_READ,
-    RUN,
-    STOP,
-    Command,
-    SetResetSpec,
-)
+from .command import Command, CommandCode, SetResetSpec
 from .header import Header
-from .memory import MemoryAddress
+from .memory import MemoryArea
 from .response import Response
 
 
@@ -47,9 +35,15 @@ class FinsClient:
         self.sid: int = 0
 
     def send(self, command: Command) -> bytes:
-        self._socket.send(command.bytes)
+        self._socket.send(command.raw)
         data = self._socket.recv(self.buffer_size)
-        return Response.from_bytes(data, command)
+        return Response(
+            header=Header.from_bytes(data[:10]),
+            command_code=data[10:12],
+            code=data[12:14],
+            data=data[14:],
+            command=command,
+        )
 
     def connect(self) -> None:
         self._socket.connect((self.host, self.port))
@@ -78,10 +72,10 @@ class FinsClient:
     def memory_area_read(
         self, address: Union[str, bytes], num_items: int = 1
     ) -> Response:
-        addr = MemoryAddress(address)
+        addr = MemoryArea(address)
         cmd = Command(
-            code=MEMORY_AREA_READ,
-            data=addr.bytes + num_items.to_bytes(2, "big"),
+            code=CommandCode.MEMORY_AREA_READ,
+            data=addr.raw + num_items.to_bytes(2, "big"),
             header=self._build_header(),
         )
         return self.send(cmd)
@@ -89,10 +83,10 @@ class FinsClient:
     def memory_area_write(
         self, address: Union[str, bytes], data: bytes, num_items: int = 1
     ) -> Response:
-        addr = MemoryAddress(address)
+        addr = MemoryArea(address)
         cmd = Command(
-            code=MEMORY_AREA_WRITE,
-            data=addr.bytes + num_items.to_bytes(2, "big") + data,
+            code=CommandCode.MEMORY_AREA_WRITE,
+            data=addr.raw + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )
         return self.send(cmd)
@@ -100,10 +94,10 @@ class FinsClient:
     def memory_area_fill(
         self, address: Union[str, bytes], data: bytes, num_items: int = 1
     ) -> Response:
-        addr = MemoryAddress(address)
+        addr = MemoryArea(address)
         cmd = Command(
-            code=MEMORY_AREA_FILL,
-            data=addr.bytes + num_items.to_bytes(2, "big") + data,
+            code=MemoryArea.MEMORY_AREA_FILL,
+            data=addr.raw + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )
         return self.send(cmd)
@@ -111,11 +105,11 @@ class FinsClient:
     def multiple_memory_area_read(self, *addresses: Union[str, bytes]) -> Response:
         data = []
         for address in addresses:
-            addr = MemoryAddress(address)
-            data.append(addr.bytes)
+            addr = MemoryArea(address)
+            data.append(addr.raw)
 
         cmd = Command(
-            code=MULTIPLE_MEMORY_AREA_READ,
+            code=CommandCode.MULTIPLE_MEMORY_AREA_READ,
             data=b"".join(data),
             header=self._build_header(),
         )
@@ -127,11 +121,11 @@ class FinsClient:
         dest_address: Union[str, bytes],
         num_items: int = 1,
     ) -> Response:
-        src_addr = MemoryAddress(source_address)
-        dest_addr = MemoryAddress(dest_address)
+        src_addr = MemoryArea(source_address)
+        dest_addr = MemoryArea(dest_address)
         cmd = Command(
-            code=MEMORY_AREA_TRANSFER,
-            data=src_addr.bytes + dest_addr.bytes + num_items.to_bytes(2, "big"),
+            code=CommandCode.MEMORY_AREA_TRANSFER,
+            data=src_addr.raw + dest_addr.raw + num_items.to_bytes(2, "big"),
             header=self._build_header(),
         )
         return self.send(cmd)
@@ -143,7 +137,7 @@ class FinsClient:
     ) -> Response:
         modes = {"debug": b"\x01", "monitor": b"\x02", "run": b"\x04"}
         cmd = Command(
-            code=RUN,
+            code=CommandCode.RUN,
             data=program_number + modes[mode],
             header=self._build_header(),
         )
@@ -151,7 +145,7 @@ class FinsClient:
 
     def stop(self) -> Response:
         cmd = Command(
-            code=STOP,
+            code=CommandCode.STOP,
             header=self._build_header(),
         )
         return self.send(cmd)
@@ -159,10 +153,10 @@ class FinsClient:
     def forced_set_reset(self, *specs: SetResetSpec) -> Response:
         data = []
         for spec in specs:
-            data.append(spec.to_bytes())
+            data.append(spec.raw)
         num_items = len(data)
         cmd = Command(
-            code=FORCED_SET_RESET,
+            code=CommandCode.FORCED_SET_RESET,
             data=num_items.to_bytes(2, "big") + b"".join(data),
             header=self._build_header(),
         )
@@ -170,7 +164,7 @@ class FinsClient:
 
     def forced_set_reset_cancel(self) -> Response:
         cmd = Command(
-            code=FORCED_SET_RESET_CANCEL,
+            code=CommandCode.FORCED_SET_RESET_CANCEL,
             header=self._build_header(),
         )
         return self.send(cmd)

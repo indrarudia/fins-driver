@@ -1,30 +1,30 @@
+from typing import Iterator
+
+
 class Header:
-    def __init__(
-        self,
-        icf: bytes,
-        rsv: bytes,
-        gct: bytes,
-        dna: bytes,
-        da1: bytes,
-        da2: bytes,
-        sna: bytes,
-        sa1: bytes,
-        sa2: bytes,
-        sid: bytes,
-    ) -> None:
-        self.icf = icf
-        self.rsv = rsv
-        self.gct = gct
-        self.dna = dna
-        self.da1 = da1
-        self.da2 = da2
-        self.sna = sna
-        self.sa1 = sa1
-        self.sa2 = sa2
-        self.sid = sid
+    """
+    FINS header class.
+    """
+
+    __attrs__ = ["icf", "rsv", "gct", "dna", "da1", "da2", "sna", "sa1", "sa2", "sid"]
+
+    def __init__(self, **kwargs) -> None:
+        for attr in self.__attrs__:
+            if attr not in kwargs:
+                raise ValueError(f"Missing header name: {attr}")
+            value = kwargs[attr]
+            if not isinstance(value, bytes):
+                raise ValueError(f"Header {attr} value must be in bytes")
+            setattr(self, attr, kwargs[attr])
+
+    def __iter__(self) -> Iterator:
+        return iter(self.__dict__)
 
     @property
-    def bytes(self) -> bytes:
+    def raw(self) -> bytes:
+        """
+        Returns the raw content of header, in bytes.
+        """
         return (
             self.icf
             + self.rsv
@@ -38,11 +38,19 @@ class Header:
             + self.sid
         )
 
-    def to_bytes(self) -> bytes:
-        return self.bytes
+    def __repr__(self) -> str:
+        return "<FINS Header: {}>".format(self.raw)
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "Header":
+        """
+        Build a new Header instance from sequence of bytes.
+        """
+        if len(data) < 10:
+            raise ValueError("Insufficient header data length")
         return cls(
             icf=data[0:1],
             rsv=data[1:2],
@@ -56,17 +64,18 @@ class Header:
             sid=data[9:10],
         )
 
-
-def default_header() -> Header:
-    return Header(
-        icf=b"\x80",
-        rsv=b"\x00",
-        gct=b"\x07",
-        dna=b"\x00",
-        da1=b"\x00",
-        da2=b"\x00",
-        sna=b"\x00",
-        sa1=b"\x22",
-        sa2=b"\x00",
-        sid=b"\x00",
-    )
+    @classmethod
+    def default(cls) -> "Header":
+        """Returns default header."""
+        return cls(
+            icf=b"\x80",
+            rsv=b"\x00",
+            gct=b"\x02",
+            dna=b"\x00",
+            da1=b"\x00",
+            da2=b"\x00",
+            sna=b"\x00",
+            sa1=b"\x01",
+            sa2=b"\x00",
+            sid=b"\x00",
+        )
