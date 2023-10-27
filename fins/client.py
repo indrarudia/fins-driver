@@ -1,7 +1,13 @@
 import socket
-from typing import Literal, Union
+from typing import List, Literal, Union
 
-from .command import MEMORY_AREA_FILL, MEMORY_AREA_READ, MEMORY_AREA_WRITE, Command
+from .command import (
+    MEMORY_AREA_FILL,
+    MEMORY_AREA_READ,
+    MEMORY_AREA_WRITE,
+    MULTIPLE_MEMORY_AREA_READ,
+    Command,
+)
 from .header import Header
 from .memory import MemoryAddress
 from .response import Response
@@ -92,6 +98,21 @@ class FinsClient:
         cmd = Command(
             code=MEMORY_AREA_FILL,
             data=addr.bytes + num_items.to_bytes(2, "big") + data,
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def multiple_memory_area_read(
+        self, *addresses: List[Union[str, bytes]]
+    ) -> Response:
+        data = []
+        for address in addresses:
+            addr = MemoryAddress(address)
+            data.append(addr.bytes)
+
+        cmd = Command(
+            code=MULTIPLE_MEMORY_AREA_READ,
+            data=b"".join(data),
             header=self._build_header(),
         )
         return self.send(cmd)
