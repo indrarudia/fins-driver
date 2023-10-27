@@ -7,6 +7,8 @@ from .command import (
     MEMORY_AREA_TRANSFER,
     MEMORY_AREA_WRITE,
     MULTIPLE_MEMORY_AREA_READ,
+    RUN,
+    STOP,
     Command,
 )
 from .header import Header
@@ -129,6 +131,26 @@ class FinsClient:
         cmd = Command(
             code=MEMORY_AREA_TRANSFER,
             data=src_addr.bytes + dest_addr.bytes + num_items.to_bytes(2, "big"),
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def run(
+        self,
+        mode: Literal["debug", "monitor", "run"] = "monitor",
+        program_number: bytes = b"\xff\xff",
+    ) -> Response:
+        modes = {"debug": b"\x01", "monitor": b"\x02", "run": b"\x04"}
+        cmd = Command(
+            code=RUN,
+            data=program_number + modes[mode],
+            header=self._build_header(),
+        )
+        return self.send(cmd)
+
+    def stop(self) -> Response:
+        cmd = Command(
+            code=STOP,
             header=self._build_header(),
         )
         return self.send(cmd)
