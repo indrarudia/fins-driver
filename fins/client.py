@@ -12,7 +12,7 @@ class FinsClient:
         self,
         host: str = "127.0.0.1",
         port: int = 9600,
-        timeout: int = 2000,
+        timeout: int = 5,
         mode: Literal["tcp", "udp"] = "udp",
     ) -> None:
         self.host = host
@@ -25,6 +25,7 @@ class FinsClient:
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
             raise ValueError(f"Unknown client mode: {mode}")
+        self._socket.settimeout(self.timeout)
 
         self.dna: int = 0
         self.da1: int = 0
@@ -47,7 +48,6 @@ class FinsClient:
 
     def connect(self) -> None:
         self._socket.connect((self.host, self.port))
-        self._socket.settimeout(self.timeout)
 
     def close(self) -> None:
         self._socket.close()
