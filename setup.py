@@ -17,7 +17,7 @@ def read(filename):
 setup(
     name="fins-driver",
     version=version,
-    description="Python FINS Driver",
+    description="Python FINS driver for Omron PLC",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     license="MIT",
