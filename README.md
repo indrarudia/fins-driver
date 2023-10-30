@@ -168,15 +168,15 @@ Below is supported memory areas prefix.
 
 ## Response Object
 
-| Property/Method |   Type    |                    Description                    |
-| --------------- | --------- | ------------------------------------------------- |
-| data            | `bytes`   | Response data                                     |
-| code            | `bytes`   | Response code, primarily `b"\x00\x00"` if it's OK |
-| status_text     | `str`     | Textual description of the response code          |
-| ok              | `bool`    | True if request was OK (Normal completion)        |
-| raw             | `bytes`   | The overall raw content of response               |
-| header          | `Header`  | Response header data                              |
-| command         | `Command` | The request command that was sent to the device   |
+| Property/Method |   Type    |                   Description                   |
+| --------------- | --------- | ----------------------------------------------- |
+| data            | `bytes`   | Response data                                   |
+| code            | `bytes`   | Response code, primarily \x00\x00 if it's OK    |
+| status_text     | `str`     | Textual description of the response code        |
+| ok              | `bool`    | True if request was OK (Normal completion)      |
+| raw             | `bytes`   | The overall raw content of response             |
+| header          | `Header`  | Response header data                            |
+| command         | `Command` | The request command that was sent to the device |
 
 ## License
 
