@@ -1,4 +1,5 @@
 import binascii
+import datetime
 import time
 
 from fins import FinsClient
@@ -12,6 +13,7 @@ def main() -> None:
         while True:
             response = client.memory_area_read("D0")
             print(
+                datetime.datetime.now(),
                 "response:",
                 binascii.hexlify(response.raw, b" ", 2),
                 "value:",
@@ -19,7 +21,7 @@ def main() -> None:
                 "status:",
                 response.code,
             )
-            time.sleep(0.05)
+            time.sleep(1 / 100)
     except KeyboardInterrupt:
         client.close()
 
