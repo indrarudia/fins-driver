@@ -23,7 +23,7 @@ setup(
     license="MIT",
     author="Indra Rudianto",
     author_email="indrarudianto.official@gmail.com",
-    url="https://gitlab.com/smartoperator/fins-driver",
+    url="https://github.com/indrarudianto/fins-driver",
     zip_safe=False,
     packages=find_packages(exclude=["tests", "docs"]),
     python_requires=">=3.8",
