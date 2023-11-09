@@ -23,7 +23,7 @@ client.close()
 
 ## Memory Area Read
 
-`.memory_area_read(address: str | bytes, num_items: int = 1) -> Response`
+`.memory_area_read(address: str | bytes, num_items: int = 1) -> Response[bytes]`
 
 Examples:
 
@@ -41,7 +41,7 @@ response = client.memory_area_read('CIO100.01')
 
 ## Memory Area Write
 
-`.memory_area_write(address: str | bytes, data: bytes, num_items: int = 1) -> Response`
+`.memory_area_write(address: str | bytes, data: bytes, num_items: int = 1) -> Response[bytes]`
 
 Examples:
 
@@ -62,7 +62,7 @@ response = client.memory_area_write("CIO100.01", b"\x01")
 
 ## Memory Area Fill
 
-`.memory_area_fill(address: str | bytes, data: bytes, num_items: int = 1) -> Response`
+`.memory_area_fill(address: str | bytes, data: bytes, num_items: int = 1) -> Response[bytes]`
 
 Examples:
 
@@ -74,7 +74,7 @@ response = client.memory_area_fill("D0", b"\x00\x03")
 
 ## Multiple Memory Area Read
 
-`.multiple_memory_area_read(*addresses: str | bytes) -> Response`
+`.multiple_memory_area_read(*addresses: str | bytes) -> Response[List[bytes]]`
 
 Examples:
 
@@ -92,7 +92,7 @@ response = client.multiple_memory_area_read("CIO100.00", "CIO100.01")
 
 ## Memory Area Transfer
 
-`.memory_area_transfer(source_address: str | bytes, dest_address: str | bytes, num_items: int = 1) -> Response`
+`.memory_area_transfer(source_address: str | bytes, dest_address: str | bytes, num_items: int = 1) -> Response[bytes]`
 
 Examples:
 
@@ -104,7 +104,7 @@ response = client.memory_area_transfer("D0", "D1")
 
 ## Run
 
-`.run(mode: debug | monitor | run = "monitor", program_number: bytes = b"\xff\xff") -> Response`
+`.run(mode: debug | monitor | run = "monitor", program_number: bytes = b"\xff\xff") -> Response[bytes]`
 
 Examples:
 
@@ -116,7 +116,7 @@ response = client.run("monitor")
 
 ## Stop
 
-`.stop()`
+`.stop() -> Response[bytes]`
 
 Examples:
 
@@ -128,7 +128,7 @@ response = client.stop()
 
 ## Forced Set/Reset
 
-`.forced_set_reset(*specs: SetResetSpec) -> Response`
+`.forced_set_reset(*specs: SetResetSpec) -> Response[bytes]`
 
 Examples:
 
@@ -142,7 +142,7 @@ response = client.forced_set_reset(SetResetSpec(SetResetSpecCode.FORCE_SET, "CIO
 
 ## Forced Set/Reset Cancel
 
-`.forced_set_reset_cancel()`
+`.forced_set_reset_cancel() -> Response[bytes]`
 
 Examples:
 
@@ -151,8 +151,6 @@ Cancel all bits that have been forced ON or OFF.
 ```python
 response = client.forced_set_reset_cancel()
 ```
-
-You can also find more examples in the [samples](samples/) folder.
 
 ## Memory Areas
 
@@ -166,17 +164,21 @@ Below is supported memory areas prefix.
 | A      | Auxiliary area   |
 | D      | Data Memory area |
 
+For the core IO area, you can omit the prefix. For example, address `100.01` is
+the same as `CIO100.01`.
+
 ## Response Object
 
-| Property/Method |   Type    |                   Description                   |
-| --------------- | --------- | ----------------------------------------------- |
-| data            | `bytes`   | Response data                                   |
-| code            | `bytes`   | Response code, primarily \x00\x00 if it's OK    |
-| status_text     | `str`     | Textual description of the response code        |
-| ok              | `bool`    | True if request was OK (Normal completion)      |
-| raw             | `bytes`   | The overall raw content of response             |
-| header          | `Header`  | Response header data                            |
-| command         | `Command` | The request command that was sent to the device |
+| Property/Method |   Type    |                      Description                       |
+| --------------- | --------- | ------------------------------------------------------ |
+| data            | `T`       | Response data. Refer to each command to see data type. |
+| code            | `bytes`   | Response code, primarily \x00\x00 if it's OK.          |
+| status_text     | `str`     | Textual description of the response code.              |
+| ok              | `bool`    | True if request was OK (Normal completion).            |
+| raw_data        | `bytes`   | Original unparsed response data.                       |
+| raw             | `bytes`   | The overall raw content of response.                   |
+| header          | `Header`  | Response header data.                                  |
+| command         | `Command` | The request command that was sent to the device.       |
 
 ## License
 
