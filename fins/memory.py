@@ -124,6 +124,22 @@ MEMORY_AREAS_PREFIX = {
     ),
 }
 
+AREAS_WORDS = {
+    MemoryAreaCode.CIO_WORD,
+    MemoryAreaCode.WORK_WORD,
+    MemoryAreaCode.HOLDING_WORD,
+    MemoryAreaCode.AUXILIARY_WORD,
+    MemoryAreaCode.DATA_MEMORY_WORD,
+}
+
+AREAS_BITS = {
+    MemoryAreaCode.CIO_BIT,
+    MemoryAreaCode.WORK_BIT,
+    MemoryAreaCode.HOLDING_BIT,
+    MemoryAreaCode.AUXILIARY_BIT,
+    MemoryAreaCode.DATA_MEMORY_BIT,
+}
+
 
 class MemoryArea:
     """
@@ -140,15 +156,17 @@ class MemoryArea:
 
     def __init__(self, value: Union[str, bytes]) -> None:
         if isinstance(value, str):
-            area, word, bit = self._parse_addr_string(value)
+            area, word, bit, use_bit = self._parse_addr_string(value)
         elif isinstance(value, bytes):
-            area, word, bit = self._parse_addr_bytes(value)
+            area, word, bit, use_bit = self._parse_addr_bytes(value)
         else:
             raise TypeError(f"Unsupported type: {type(value)}")
 
         self.area: bytes = area
         self.word: bytes = word
         self.bit: bytes = bit
+
+        self._use_bit: bool = use_bit
 
     def _parse_addr_string(self, value: str) -> Tuple[bytes, bytes, bytes]:
         regex = re.compile("(?P<area>[A-Z]+)?(?P<word>\d+)(\.(?P<bit>\d+))?")
@@ -163,12 +181,14 @@ class MemoryArea:
             raise ValueError(f"Unsupported memory area: {area}")
 
         if bit is None:
+            use_bit = False
             bit = b"\x00"
             if area in MEMORY_AREAS_PREFIX:
                 area = MEMORY_AREAS_PREFIX[area].word
             else:
                 area = MemoryAreaCode.CIO_WORD
         else:
+            use_bit = True
             bit = int(bit).to_bytes(1, "big")
             if area in MEMORY_AREAS_PREFIX:
                 area = MEMORY_AREAS_PREFIX[area].bit
@@ -176,7 +196,7 @@ class MemoryArea:
                 area = MemoryAreaCode.CIO_BIT
 
         word = int(address).to_bytes(2, "big")
-        return area, word, bit
+        return area, word, bit, use_bit
 
     def _parse_addr_bytes(self, value: bytes) -> Tuple[bytes, bytes, bytes]:
         if len(value) != 4:
@@ -184,7 +204,8 @@ class MemoryArea:
         area = value[0:1]
         word = value[1:3]
         bit = value[3:5]
-        return area, word, bit
+        use_bit = area in AREAS_BITS
+        return area, word, bit, use_bit
 
     @property
     def raw(self) -> bytes:
@@ -197,3 +218,6 @@ class MemoryArea:
     def __str__(self) -> str:
         value = {"area": self.area, "word": self.word, "bit": self.bit}
         return str(value)
+
+    def is_bit_set(self) -> bool:
+        return self._use_bit
