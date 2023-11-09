@@ -132,7 +132,7 @@ response = client.stop()
 
 Examples:
 
-Force-set ON the CIO.01.
+Force-set ON the CIO0.01.
 
 ```python
 from fins import SetResetSpecCode, SetResetSpec
