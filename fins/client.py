@@ -98,7 +98,7 @@ class FinsClient:
     ) -> Response[bytes]:
         addr = MemoryArea(address)
         cmd = Command(
-            code=MemoryArea.MEMORY_AREA_FILL,
+            code=CommandCode.MEMORY_AREA_FILL,
             data=addr.raw + num_items.to_bytes(2, "big") + data,
             header=self._build_header(),
         )
