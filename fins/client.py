@@ -36,7 +36,9 @@ class FinsClient:
         self.sa2: int = 0
         self.sid: int = 0
 
-    def send(self, command: Command, adapter: Optional[callable] = None) -> bytes:
+    def send(
+        self, command: Command, adapter: Optional[callable] = None
+    ) -> Response[bytes]:
         self._socket.send(command.raw)
         data = self._socket.recv(self.buffer_size)
         return Response(
