@@ -11,6 +11,7 @@ class BaseDataAdapter:
 
 class MultipleMemoryAreaReadDataAdapter(BaseDataAdapter):
     def __init__(self, addresses: List[MemoryArea]) -> None:
+        super().__init__()
         self.addresses = addresses
 
     def __call__(self, data: bytes) -> List[bytes]:
