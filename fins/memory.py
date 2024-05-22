@@ -168,7 +168,7 @@ class MemoryArea:
 
         self._use_bit: bool = use_bit
 
-    def _parse_addr_string(self, value: str) -> Tuple[bytes, bytes, bytes]:
+    def _parse_addr_string(self, value: str) -> Tuple[bytes, bytes, bytes, bytes]:
         regex = re.compile("(?P<area>[A-Z]+)?(?P<word>\d+)(\.(?P<bit>\d+))?")
         match = regex.match(value)
         if match:
@@ -198,7 +198,7 @@ class MemoryArea:
         word = int(address).to_bytes(2, "big")
         return area, word, bit, use_bit
 
-    def _parse_addr_bytes(self, value: bytes) -> Tuple[bytes, bytes, bytes]:
+    def _parse_addr_bytes(self, value: bytes) -> Tuple[bytes, bytes, bytes, bytes]:
         if len(value) != 4:
             raise ValueError("Insufficient address bytes length")
         area = value[0:1]
