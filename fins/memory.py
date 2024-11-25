@@ -169,7 +169,7 @@ class MemoryArea:
         self._use_bit: bool = use_bit
 
     def _parse_addr_string(self, value: str) -> Tuple[bytes, bytes, bytes, bytes]:
-        regex = re.compile("(?P<area>[A-Z]+)?(?P<word>\d+)(\.(?P<bit>\d+))?")
+        regex = re.compile(r"(?P<area>[A-Z]+)?(?P<word>\d+)(\.(?P<bit>\d+))?")
         match = regex.match(value)
         if match:
             area = match.groupdict()["area"]
