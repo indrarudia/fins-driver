@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fins-driver"
+version = "0.3.0"
+description = "Python FINS driver for Omron PLC"
+authors = ["Indra Rudianto <indrarudianto.official@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/indrarudianto/fins-driver"
+repository = "https://github.com/indrarudianto/fins-driver"
+keywords = ["FINS", "Omron", "PLC", "driver"]
+packages = [{ include = "fins" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
