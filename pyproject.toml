@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fins-driver"
-version = "0.3.0"
+version = "0.3.1"
 description = "Python FINS driver for Omron PLC"
 authors = ["Indra Rudianto <indrarudianto.official@gmail.com>"]
 license = "MIT"
