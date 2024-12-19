@@ -1,5 +1,10 @@
 # fins-driver
 
+**Note**
+
+The repository has been moved to https://github.com/sukmatechindonesia/fins-driver.
+This repository will be archived.
+
 FINS (Factory Interface Network Service) Python driver for Omron PLC.
 
 ## Installation
