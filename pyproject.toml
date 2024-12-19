@@ -2,11 +2,11 @@
 name = "fins-driver"
 version = "0.3.1"
 description = "Python FINS driver for Omron PLC"
-authors = ["Indra Rudianto <indrarudianto.official@gmail.com>"]
+authors = ["Sukma Tech Indonesia <sukmatechindonesia@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/indrarudianto/fins-driver"
-repository = "https://github.com/indrarudianto/fins-driver"
+homepage = "https://github.com/sukmatechindonesia/fins-driver"
+repository = "https://github.com/sukmatechindonesia/fins-driver"
 keywords = ["FINS", "Omron", "PLC", "driver"]
 packages = [{ include = "fins" }]
 
